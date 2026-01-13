@@ -1,63 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import CodeBlock from './CodeBlock';
-
-// 自定义 slug 生成函数
-const customSlug = (value: string): string => {
-  return value
-    .toLowerCase()
-    .trim()
-    // 移除中文
-    .replace(/[\u4e00-\u9fa5]/g, '')
-    // 替换空格和特殊字符为连字符
-    .replace(/[\s+~\/\\!@#$%^&*()_+={}[\]|;:"'<>,.?]/g, '-')
-    // 移除多个连字符
-    .replace(/-+/g, '-')
-    // 移除首尾连字符
-    .replace(/^-+|-+$/g, '')
-    // 如果结果为空，使用随机字符串
-    || `heading-${Math.random().toString(36).substr(2, 9)}`;
-};
-
-// 自定义 rehype slug 插件
-const customRehypeSlug = () => {
-  return (tree: any) => {
-    // 遍历所有元素
-    const visit = (node: any) => {
-      if (node.type === 'element' && /^h[1-6]$/.test(node.tagName)) {
-        // 生成 slug
-        const textContent = node.children
-          .map((child: any) => {
-            if (child.type === 'text') return child.value;
-            if (child.type === 'element') return child.children.map((c: any) => c.value).join('');
-            return '';
-          })
-          .join('');
-        
-        const slug = customSlug(textContent);
-        
-        // 添加 id 属性
-        if (slug) {
-          if (!node.properties) node.properties = {};
-          node.properties.id = slug;
-        }
-      }
-      
-      // 递归遍历子元素
-      if (node.children) {
-        node.children.forEach(visit);
-      }
-    };
-    
-    visit(tree);
-  };
-};
 
 interface MarkdownRendererProps {
   content: string;
@@ -66,6 +15,41 @@ interface MarkdownRendererProps {
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   // 页面级别的代码块主题状态
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isClient, setIsClient] = useState(false);
+
+  // 确保只在客户端运行
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // 自定义 rehype slug 插件
+  const customRehypeSlug = () => {
+    return (tree: any) => {
+      // 遍历所有元素
+      const visit = (node: any) => {
+        if (node.type === 'element' && /^h[1-6]$/.test(node.tagName)) {
+          // 生成随机ID
+          const randomId = `heading-${Math.random().toString(36).substr(2, 9)}`;
+          
+          // 添加 id 属性
+          if (!node.properties) node.properties = {};
+          node.properties.id = randomId;
+        }
+        
+        // 递归遍历子元素
+        if (node.children) {
+          node.children.forEach(visit);
+        }
+      };
+      
+      visit(tree);
+    };
+  };
+
+  // 在客户端渲染完成后再显示内容，避免 hydration 错误
+  if (!isClient) {
+    return <div className="w-full h-full m-0 p-0"></div>;
+  }
 
   return (
     <div className="w-full h-full m-0 p-0">

@@ -11,12 +11,12 @@ const BlogDetailClient = ({ blog }: { blog: any }) => {
   'use client';
   
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
-      {/* 左侧空白 */}
-      <div className="lg:col-span-2 xl:col-span-2"></div>
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
+      {/* 左侧空白占位 */}
+      <div className="hidden md:block md:col-span-3 lg:col-span-2"></div>
       
       {/* 中间博客内容 */}
-      <div className="lg:col-span-7 xl:col-span-8 px-4 md:px-6">
+      <div className="md:col-span-6 lg:col-span-8 px-4 md:px-0">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-center">{blog.title}</h1>
           <div className="flex flex-wrap items-center gap-2 justify-center mt-2">
@@ -47,7 +47,7 @@ const BlogDetailClient = ({ blog }: { blog: any }) => {
       </div>
 
       {/* 右侧目录导航 */}
-      <div className="lg:col-span-3 xl:col-span-2">
+      <div className="hidden md:block md:col-span-3 lg:col-span-2">
         <div className="sticky top-24 p-0 text-sm">
           {/* TableOfContents 组件需要在客户端渲染 */}
           <TableOfContents content={blog.content || ''} />

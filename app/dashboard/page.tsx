@@ -45,7 +45,6 @@ const DashboardContent: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -605,24 +604,17 @@ const DashboardContent: React.FC = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="content">内容</Label>
-                {showPreview ? (
-                  <div className="border border-gray-300 rounded-md overflow-hidden min-h-[400px] p-4 bg-white">
-                    <h2 className="text-xl font-bold mb-4">{title || '预览'}</h2>
-                    <MarkdownRenderer content={content} />
-                  </div>
-                ) : (
-                  <div className="border border-gray-300 rounded-md overflow-hidden min-h-[400px]">
-                    <MarkdownEditor
-                      value={content}
-                      onChange={(value) => {
-                        // 确保保存的是纯Markdown文本，而不是HTML
-                        setContent(value || '');
-                      }}
-                      placeholder="使用 Markdown 编写博客内容..."
-                      height="400px"
-                    />
-                  </div>
-                )}
+                <div className="border border-gray-300 rounded-md overflow-hidden min-h-[400px]">
+                  <MarkdownEditor
+                    value={content}
+                    onChange={(value) => {
+                      // 确保保存的是纯Markdown文本，而不是HTML
+                      setContent(value || '');
+                    }}
+                    placeholder="使用 Markdown 编写博客内容..."
+                    height="400px"
+                  />
+                </div>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -649,14 +641,6 @@ const DashboardContent: React.FC = () => {
                   disabled={submitting}
                 >
                   {submitting ? '保存中...' : '存入草稿箱'}
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  onClick={() => setShowPreview(!showPreview)}
-                  disabled={submitting}
-                >
-                  {showPreview ? '编辑' : '预览'}
                 </Button>
               </div>
             </form>

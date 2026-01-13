@@ -18,11 +18,15 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
       headingElements.forEach((element) => {
         const level = parseInt(element.tagName.substring(1));
         const text = element.textContent || '';
-        const id = element.id || '';
+        let id = element.id || '';
 
-        if (id) {
-          extractedHeadings.push({ level, text, id });
+        // 如果没有 id，生成一个随机 id
+        if (!id) {
+          id = `heading-${Math.random().toString(36).substr(2, 9)}`;
+          element.id = id; // 添加到元素上
         }
+
+        extractedHeadings.push({ level, text, id });
       });
 
       setHeadings(extractedHeadings);
@@ -31,7 +35,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
     // 延迟执行，确保页面渲染完成
     const timer = setTimeout(() => {
       extractHeadingsFromDOM();
-    }, 100);
+    }, 500); // 增加延迟时间，确保所有标题都已渲染并添加了 id
 
     return () => clearTimeout(timer);
   }, [content]);

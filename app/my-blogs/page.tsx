@@ -154,48 +154,58 @@ const MyBlogsPage: React.FC = () => {
   }
 
   return (
-    <div className="  p-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="bg-gray-50">
+      <div className="px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
+          {/* 左侧空白占位 */}
+          <div className="hidden md:block md:col-span-3 lg:col-span-2"></div>
+          
+          {/* 中间内容区域 */}
+          <div className="md:col-span-6 lg:col-span-8">
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-md">
+                {error}
+              </div>
+            )}
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-md">
-            {error}
+            {blogs.length === 0 ? (
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <h3 className="text-xl font-medium mb-2">您还没有发布任何博客</h3>
+                <p className="text-gray-600 mb-4">开始创建您的第一篇博客吧！</p>
+                <Link href="/dashboard">
+                  <Button>发布博客</Button>
+                </Link>
+              </div>
+            ) : (
+              <>
+                <Tabs defaultValue="all" onValueChange={handleFilter}>
+                  <TabsList className="mb-6">
+                    <TabsTrigger value="all">全部</TabsTrigger>
+                    <TabsTrigger value="public">公开</TabsTrigger>
+                    <TabsTrigger value="private">私密</TabsTrigger>
+                    <TabsTrigger value="draft">草稿</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+
+                {/* 使用 @tanstack/react-virtual 实现虚拟列表 */}
+                <VirtualList
+                  items={filteredBlogs}
+                  renderItem={(blog) => (
+                    <BlogCard
+                            blog={blog as Blog}
+                            currentUserId={(session?.user as any)?.id || null}
+                            onDelete={handleDelete}
+                          />
+                  )}
+                  dynamicHeight={true}
+                />
+              </>
+            )}
           </div>
-        )}
-
-        {blogs.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-lg">
-            <h3 className="text-xl font-medium mb-2">您还没有发布任何博客</h3>
-            <p className="text-gray-600 mb-4">开始创建您的第一篇博客吧！</p>
-            <Link href="/dashboard">
-              <Button>发布博客</Button>
-            </Link>
-          </div>
-        ) : (
-          <>
-            <Tabs defaultValue="all" onValueChange={handleFilter}>
-              <TabsList className="mb-6">
-                <TabsTrigger value="all">全部</TabsTrigger>
-                <TabsTrigger value="public">公开</TabsTrigger>
-                <TabsTrigger value="private">私密</TabsTrigger>
-                <TabsTrigger value="draft">草稿</TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            {/* 使用 @tanstack/react-virtual 实现虚拟列表 */}
-            <VirtualList
-              items={filteredBlogs}
-              renderItem={(blog) => (
-                <BlogCard
-                        blog={blog as Blog}
-                        currentUserId={(session?.user as any)?.id || null}
-                        onDelete={handleDelete}
-                      />
-              )}
-              dynamicHeight={true}
-            />
-          </>
-        )}
+          
+          {/* 右侧空白占位 */}
+          <div className="hidden md:block md:col-span-3 lg:col-span-2"></div>
+        </div>
       </div>
     </div>
   );
