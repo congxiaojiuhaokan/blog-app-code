@@ -148,7 +148,7 @@ const RegisterPage: React.FC = () => {
           )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">姓名</Label>
+              <Label htmlFor="name">名字</Label>
               <Input
                 id="name"
                 type="text"

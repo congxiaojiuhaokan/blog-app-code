@@ -23,13 +23,21 @@ export async function GET(req: NextRequest) {
     if (id) {
       where.id = id;
     } else if (userId) {
-      // 当指定了userId时，返回该用户的所有公开博客（已发布且非私密）
-      where = {
-        userId,
-        status: 'published',
-        isPrivate: false
-      };
-      console.log('GET /api/blogs - Where clause for user:', where);
+      // 当指定了userId时，检查当前登录用户
+      const session = await getServerSession(authOptions);
+      if (session?.user && session.user.id === userId) {
+        // 如果是当前登录用户请求自己的博客，返回所有状态的博客
+        where = { userId };
+        console.log('GET /api/blogs - Where clause for current user:', where);
+      } else {
+        // 如果是其他用户请求，只返回公开的已发布博客
+        where = {
+          userId,
+          status: 'published',
+          isPrivate: false
+        };
+        console.log('GET /api/blogs - Where clause for other user:', where);
+      }
     } else {
       where = { status: 'published', isPrivate: false };
     }
