@@ -35,6 +35,12 @@ const RegisterPage: React.FC = () => {
       return;
     }
 
+    // 验证名字长度
+    if (name.length > 10) {
+      setError('名字长度不能超过10个字符');
+      return;
+    }
+
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
@@ -156,6 +162,7 @@ const RegisterPage: React.FC = () => {
                 onChange={(e) => setName(e.target.value)}
                 required
                 placeholder="请输入您的姓名"
+                maxLength={10}
               />
             </div>
             <div className="space-y-2">
