@@ -4,8 +4,6 @@ import React from 'react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 export interface Blog {
@@ -27,40 +25,19 @@ export interface Blog {
 interface BlogCardProps {
   blog: Blog;
   currentUserId?: string | null;
-  onTogglePrivate?: (id: string, currentState: boolean) => void;
   onDelete?: (id: string) => void;
   showActions?: boolean;
 }
 
-// 优化：使用 React.memo 减少不必要的重新渲染
+// 优化：使用 React.memo 减少不必要的重新渲染，自定义比较函数确保只有必要时才重新渲染
 export const BlogCard: React.FC<BlogCardProps> = React.memo(({
   blog,
   currentUserId,
-  onTogglePrivate,
   onDelete,
   showActions = true
 }) => {
   const isAuthor = currentUserId === blog.user.id;
   const showActionButtons = showActions && isAuthor;
-  const [isPrivate, setIsPrivate] = React.useState(blog.isPrivate);
-
-  // 当blog.isPrivate变化时，更新本地状态
-  React.useEffect(() => {
-    // 只有当传入的blog.isPrivate与本地状态不同时才更新，避免不必要的状态更新
-    if (blog.isPrivate !== isPrivate) {
-      setIsPrivate(blog.isPrivate);
-    }
-  }, [blog.isPrivate, isPrivate]);
-
-  // 优化：使用 useCallback 缓存事件处理函数，避免每次渲染都创建新函数
-  const handleTogglePrivate = React.useCallback((checked: boolean) => {
-    if (onTogglePrivate && blog.status === 'published') {
-      // 立即更新本地状态，确保UI能立即响应
-      setIsPrivate(checked);
-      // 然后发送API请求
-      onTogglePrivate(blog.id, !checked);
-    }
-  }, [onTogglePrivate, blog.id, blog.status]);
 
   // 优化：使用 useCallback 缓存删除处理函数
   const handleDelete = React.useCallback(() => {
@@ -107,7 +84,7 @@ export const BlogCard: React.FC<BlogCardProps> = React.memo(({
                 草稿
               </span>
             )}
-            {blog.status === 'published' && isPrivate && (
+            {blog.status === 'published' && blog.isPrivate && (
               <span className="text-xs font-medium bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
                 私密
               </span>
@@ -138,51 +115,41 @@ export const BlogCard: React.FC<BlogCardProps> = React.memo(({
               </span>
             </div>
           {showActionButtons && (
-            <div className="flex items-center space-x-3 flex-shrink-0">
-              {blog.status === 'published' && typeof window !== 'undefined' && (
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id={`private-${blog.id}`}
-                    checked={isPrivate}
-                    onCheckedChange={handleTogglePrivate}
-                    className="flex-shrink-0"
-                  />
-                  <Label htmlFor={`private-${blog.id}`} className="text-sm flex-shrink-0">
-                    私密
-                  </Label>
-                </div>
-              )}
-              <Link href={`/dashboard?edit=${blog.id}`}>
-                <Button variant="secondary" size="sm">
-                  编辑
-                </Button>
-              </Link>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="sm">
-                    删除
+            <div className="flex-shrink-0">
+              {/* 统一布局：编辑按钮 + 删除按钮 */}
+              <div className="flex items-center space-x-3">
+                <Link href={`/dashboard?edit=${blog.id}`}>
+                  <Button variant="secondary" size="sm">
+                    编辑
                   </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>确认删除</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      您确定要删除这篇博客吗？此操作不可撤销。
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>取消</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete}>
+                </Link>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm">
                       删除
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>确认删除</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        您确定要删除这篇博客吗？此操作不可撤销。
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>取消</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>
+                        删除
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
           )}
           {/* 当没有按钮时，添加一个占位元素以保持高度一致 */}
           {!showActionButtons && (
-            <div className="h-14 flex-shrink-0"></div>
+            <div className="h-9 flex-shrink-0"></div>
           )}
         </div>
       </div>

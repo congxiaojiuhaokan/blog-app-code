@@ -81,55 +81,6 @@ const MyBlogsPage: React.FC = () => {
     }
   };
 
-  // 切换隐私设置（带防抖）
-  const handleTogglePrivate = useCallback(
-    debounce(async (id: string, currentState: boolean) => {
-      try {
-        const response = await fetch('/api/blogs', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            id,
-            isPrivate: !currentState,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error('更新隐私设置失败');
-        }
-
-        // 直接更新本地状态，确保UI能立即响应
-        const updatedBlogs = blogs.map(blog => 
-          blog.id === id ? { ...blog, isPrivate: !currentState } : blog
-        );
-        
-        // 使用activeTab状态来计算新的filteredBlogs
-        let newFilteredBlogs: Blog[];
-        if (activeTab === 'all') {
-          newFilteredBlogs = updatedBlogs;
-        } else if (activeTab === 'public') {
-          newFilteredBlogs = updatedBlogs.filter(blog => blog.status === 'published' && !blog.isPrivate);
-        } else if (activeTab === 'private') {
-          newFilteredBlogs = updatedBlogs.filter(blog => blog.status === 'published' && blog.isPrivate);
-        } else if (activeTab === 'draft') {
-          newFilteredBlogs = updatedBlogs.filter(blog => blog.status === 'draft');
-        } else {
-          newFilteredBlogs = updatedBlogs;
-        }
-        
-        // 同时更新两个状态
-        setBlogs(updatedBlogs);
-        setFilteredBlogs(newFilteredBlogs);
-      } catch (err) {
-        setError('更新隐私设置失败');
-        console.error(err);
-      }
-    }, 500),
-    [blogs, activeTab]
-  );
-
   // 删除博客（带防抖）
   const handleDelete = useCallback(
     debounce(async (id: string) => {
@@ -236,11 +187,10 @@ const MyBlogsPage: React.FC = () => {
               items={filteredBlogs}
               renderItem={(blog) => (
                 <BlogCard
-                  blog={blog as Blog}
-                  currentUserId={(session?.user as any)?.id || null}
-                  onTogglePrivate={handleTogglePrivate}
-                  onDelete={handleDelete}
-                />
+                        blog={blog as Blog}
+                        currentUserId={(session?.user as any)?.id || null}
+                        onDelete={handleDelete}
+                      />
               )}
               dynamicHeight={true}
             />

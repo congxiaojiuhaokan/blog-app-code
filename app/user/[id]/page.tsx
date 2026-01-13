@@ -131,6 +131,26 @@ const UserBlogsPage = ({ params }: { params: Promise<{ id: string }> }) => {
     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
+  // 处理删除博客
+  const handleDeleteBlog = async (id: string) => {
+    try {
+      const res = await fetch(`/api/blogs/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (res.ok) {
+        // 更新博客列表，过滤掉已删除的博客
+        setDisplayBlogs(prevBlogs => prevBlogs.filter(blog => blog.id !== id));
+        setBlogs(prevBlogs => prevBlogs.filter(blog => blog.id !== id));
+      } else {
+        console.error('删除博客失败');
+      }
+    } catch (error) {
+      console.error('删除博客时发生错误:', error);
+    }
+  };
+
   return (
     <div className="  bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -168,6 +188,7 @@ const UserBlogsPage = ({ params }: { params: Promise<{ id: string }> }) => {
                 <BlogCard
                   blog={blog}
                   currentUserId={(session?.user as any)?.id || null}
+                  onDelete={handleDeleteBlog}
                 />
               )}
               dynamicHeight={true}

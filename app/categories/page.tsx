@@ -197,6 +197,42 @@ const CategoriesPage: React.FC = () => {
                       <BlogCard
                         blog={blog as Blog}
                         currentUserId={(session?.user as any)?.id || null}
+                        onDelete={async (id: string) => {
+                          try {
+                            const res = await fetch(`/api/blogs/${id}`, {
+                              method: 'DELETE',
+                              credentials: 'include',
+                            });
+
+                            if (res.ok) {
+                              // 更新博客列表，过滤掉已删除的博客
+                              const updatedBlogs = allBlogs.filter(b => b.id !== id);
+                              setAllBlogs(updatedBlogs);
+                              
+                              // 更新按分类分组的博客
+                              const updatedByCategory: Record<string, Blog[]> = {};
+                              categories.forEach(category => {
+                                updatedByCategory[category] = updatedBlogs.filter(blog => 
+                                  blog.category?.toLowerCase() === category.toLowerCase()
+                                );
+                              });
+                              setBlogsByCategory(updatedByCategory);
+                              
+                              // 更新当前显示的博客
+                              if (selectedCategory) {
+                                setDisplayBlogs(updatedByCategory[selectedCategory] || []);
+                              } else {
+                                setDisplayBlogs(updatedBlogs.sort((a, b) => 
+                                  new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                                ));
+                              }
+                            } else {
+                              console.error('删除博客失败');
+                            }
+                          } catch (error) {
+                            console.error('删除博客时发生错误:', error);
+                          }
+                        }}
                       />
                     )}
                     dynamicHeight={true}
