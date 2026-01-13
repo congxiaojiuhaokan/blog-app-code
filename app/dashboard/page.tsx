@@ -586,7 +586,7 @@ const DashboardContent: React.FC = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">分类</Label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                   {categories.map((cat) => (
                     <button
                       key={cat}
