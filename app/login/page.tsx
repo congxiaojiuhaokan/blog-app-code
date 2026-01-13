@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { signIn, useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -14,11 +14,25 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const router = useRouter();
+
+  // 验证邮箱格式
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setEmailError('');
+
+    // 验证邮箱格式
+    if (!validateEmail(email)) {
+      setEmailError('请输入有效的邮箱地址');
+      return;
+    }
 
     // Get callback URL from query parameters, default to '/'
     const urlParams = new URLSearchParams(window.location.search);
@@ -133,12 +147,17 @@ const LoginPage: React.FC = () => {
               <Label htmlFor="email">邮箱</Label>
               <Input
                 id="email"
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="请输入您的邮箱"
+                maxLength={50}
+                inputMode="email"
               />
+              {emailError && (
+                <p className="text-red-500 text-sm">{emailError}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">密码</Label>
@@ -149,6 +168,8 @@ const LoginPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="请输入您的密码"
+                minLength={6}
+                maxLength={50}
               />
             </div>
             <Button type="submit" className="w-full">

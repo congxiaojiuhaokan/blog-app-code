@@ -15,23 +15,51 @@ const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [success, setSuccess] = useState('');
   const router = useRouter();
 
   // 验证邮箱格式
   const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    // 检查是否缺少用户名部分
+    const hasLocalPart = email.includes('@') && email.split('@')[0].trim().length > 0;
+    
+    // 检查是否包含中文全角字符
+    const hasFullWidthChars = /[\uFF00-\uFFFF]/.test(email);
+    
+    // 检查域名部分是否包含中文句号
+    const hasChinesePeriod = email.includes('。');
+    
+    // 基本邮箱格式验证
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    return emailRegex.test(email) && !hasFullWidthChars && !hasChinesePeriod && hasLocalPart;
+  };
+
+  // 实时验证邮箱
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    if (value) {
+      if (!validateEmail(value)) {
+        setEmailError('请输入有效的邮箱地址');
+      } else {
+        setEmailError('');
+      }
+    } else {
+      setEmailError('');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setEmailError('');
     setSuccess('');
 
     // 验证邮箱格式
     if (!validateEmail(email)) {
-      setError('请输入有效的邮箱地址');
+      setEmailError('请输入有效的邮箱地址');
       return;
     }
 
@@ -169,12 +197,16 @@ const RegisterPage: React.FC = () => {
               <Label htmlFor="email">邮箱</Label>
               <Input
                 id="email"
-                type="email"
+                type="text"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
                 required
                 placeholder="请输入您的邮箱"
+                inputMode="email"
               />
+              {emailError && (
+                <p className="text-red-500 text-sm">{emailError}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">密码</Label>
