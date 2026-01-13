@@ -66,11 +66,11 @@ export const BlogCard: React.FC<BlogCardProps> = React.memo(({
       <div className="flex flex-col gap-3 w-full">
         {/* 标题和分类 */}
         <div className="flex flex-row justify-between items-start gap-2 w-full">
-          <h3 className="text-xl font-semibold flex-1 max-w-[50%] truncate">
-            <Link href={`/posts/${blog.id}`} className="hover:underline">
+          <Link href={`/posts/${blog.id}`} className="max-w-[50%] truncate hover:no-underline">
+            <h3 className="text-xl font-semibold whitespace-nowrap overflow-hidden text-ellipsis">
               {blog.title}
-            </Link>
-          </h3>
+            </h3>
+          </Link>
           <div className="flex items-center space-x-2 flex-shrink-0">
             {blog.category && (
               <Link href={`/categories`} className="hover:no-underline">
@@ -93,9 +93,11 @@ export const BlogCard: React.FC<BlogCardProps> = React.memo(({
         </div>
 
         {/* 内容 */}
-        <p className="text-gray-600 line-clamp-2 w-full h-12">
-          {processedContent}
-        </p>
+        <Link href={`/posts/${blog.id}`} className="block w-full hover:no-underline">
+          <p className="text-gray-600 line-clamp-2 w-full h-12">
+            {processedContent}
+          </p>
+        </Link>
 
         {/* 作者信息和操作按钮 */}
         <div className="flex flex-row justify-between items-center gap-3 pt-2 border-t border-gray-100 w-full flex-wrap min-h-14">
