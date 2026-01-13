@@ -104,7 +104,7 @@ const CategoriesPage: React.FC = () => {
   return (
     <div className=" bg-gray-50">
       {/* 手机端分类菜单 */}
-      <div className="md:hidden bg-white border-b border-gray-200 sticky top-[64px] z-40">
+      <div className="md:hidden bg-white border-b border-gray-200 sticky top-[48px] z-40">
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" className="w-full justify-start px-4 py-3 text-left">
