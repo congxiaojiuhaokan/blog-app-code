@@ -122,42 +122,38 @@ const Navbar: React.FC = () => {
               </svg>
             </Button>
 
-            {/* 登录/登出按钮 */}
+            {/* 发布博客按钮（始终显示） */}
+            <Link href={session?.user ? "/dashboard" : "/login"}>
+              <Button className="h-9 px-4 bg-black text-white hover:bg-gray-800 rounded-md">
+                发布博客
+              </Button>
+            </Link>
+
+            {/* 登录/用户菜单 */}
             {session?.user ? (
-              <div className="flex items-center space-x-4" style={{ margin: 0 }}>
-                <Link href="/dashboard">
-                  <Button className="h-9 px-4 bg-black text-white hover:bg-gray-800 rounded-md">
-                    发布博客
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative">
+                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white font-medium">
+                      {session.user.name
+                        ? session.user.name.charAt(0)
+                        : session.user.email
+                        ? session.user.email.charAt(0)
+                        : 'U'}
+                    </div>
                   </Button>
-                </Link>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="relative">
-                      <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white font-medium">
-                        {session.user.name
-                          ? session.user.name.charAt(0)
-                          : session.user.email
-                          ? session.user.email.charAt(0)
-                          : 'U'}
-                      </div>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <a href="/my-blogs">我的博客</a>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => signOut()}>
-                      登出
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <a href="/my-blogs">我的博客</a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    登出
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
-              <Link href="/login">
-                <Button className="h-9 px-4 bg-black text-white hover:bg-gray-800 rounded-md">
-                  登录
-                </Button>
-              </Link>
+              <div></div>
             )}
 
             {/* Mobile Menu Button */}
