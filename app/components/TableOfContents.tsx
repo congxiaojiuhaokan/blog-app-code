@@ -1,19 +1,27 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+
+interface Heading {
+  level: number;
+  text: string;
+  id: string;
+}
 
 interface TableOfContentsProps {
   content: string;
 }
 
 const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
-  const [headings, setHeadings] = useState<Array<{ level: number; text: string; id: string }>>([]);
+  const [headings, setHeadings] = useState<Heading[]>([]);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     // 等待页面渲染完成，然后提取实际的标题元素
     const extractHeadingsFromDOM = () => {
       const headingElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-      const extractedHeadings: Array<{ level: number; text: string; id: string }> = [];
+      const extractedHeadings: Heading[] = [];
 
       headingElements.forEach((element) => {
         const level = parseInt(element.tagName.substring(1));
@@ -30,6 +38,15 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
       });
 
       setHeadings(extractedHeadings);
+      
+      // 默认展开所有一级标题
+      const initialExpanded: Record<string, boolean> = {};
+      extractedHeadings
+        .filter(heading => heading.level === 1)
+        .forEach(heading => {
+          initialExpanded[heading.id] = true;
+        });
+      setExpandedSections(initialExpanded);
     };
 
     // 延迟执行，确保页面渲染完成
@@ -59,24 +76,89 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
     }
   };
 
-  return (
-    <nav>
-      <ul className="space-y-1">
-        {headings.map((heading, index) => (
-          <li key={index} style={{ paddingLeft: `${(heading.level - 1) * 16}px` }}>
-            <a
-              href={`#${heading.id}`}
-              className="block py-1 px-2 transition-colors hover:text-blue-600"
-              onClick={(e) => {
-                e.preventDefault();
-                handleClick(heading.id);
-              }}
-            >
-              {heading.text}
-            </a>
-          </li>
-        ))}
+  const toggleSection = (headingId: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [headingId]: !prev[headingId]
+    }));
+  };
+
+  // 组织标题为树状结构
+  const buildHeadingTree = () => {
+    const tree: any[] = [];
+    const stack: any[] = [];
+
+    headings.forEach(heading => {
+      const node = { ...heading, children: [] };
+
+      if (heading.level === 1) {
+        tree.push(node);
+        stack.length = 0;
+        stack.push(node);
+      } else {
+        while (stack.length > 0 && stack[stack.length - 1].level >= heading.level) {
+          stack.pop();
+        }
+        if (stack.length > 0) {
+          stack[stack.length - 1].children.push(node);
+        }
+        stack.push(node);
+      }
+    });
+
+    return tree;
+  };
+
+  const headingTree = buildHeadingTree();
+
+  // 递归渲染标题树
+  const renderHeadingTree = (nodes: any[], level: number = 1) => {
+    return (
+      <ul className="space-y-1 pl-2">
+        {nodes.map((node, index) => {
+          const isExpanded = expandedSections[node.id] ?? true;
+          const hasChildren = node.children.length > 0;
+          
+          return (
+            <li key={index} className="space-y-1">
+              <div className="flex items-center gap-1">
+                {hasChildren && (
+                  <button
+                    onClick={() => toggleSection(node.id)}
+                    className="p-1 rounded hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
+                    aria-expanded={isExpanded}
+                  >
+                    {isExpanded ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </button>
+                )}
+                <a
+                  href={`#${node.id}`}
+                  className={`block py-1 px-2 rounded transition-colors hover:text-blue-600 hover:bg-gray-100 text-sm font-medium ${level === 1 ? 'font-semibold' : ''}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleClick(node.id);
+                  }}
+                  style={{ paddingLeft: hasChildren ? '0' : `${(level - 1) * 16}px` }}
+                >
+                  {node.text}
+                </a>
+              </div>
+              {hasChildren && isExpanded && renderHeadingTree(node.children, level + 1)}
+            </li>
+          );
+        })}
       </ul>
+    );
+  };
+
+  return (
+    <nav className="bg-white rounded-md shadow-sm p-3 border border-gray-200">
+      <h3 className="text-sm font-semibold mb-3 text-gray-700">目录</h3>
+      {renderHeadingTree(headingTree)}
     </nav>
   );
 };
