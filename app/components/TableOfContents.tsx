@@ -168,7 +168,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
   };
 
   return (
-    <nav className="p-0">
+    <nav className="p-0 max-h-[calc(100vh-120px)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {renderHeadingTree(headingTree)}
     </nav>
   );
