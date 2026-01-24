@@ -88,7 +88,7 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Right Side: Search and Login */}
-          <div className="flex items-center space-x-3 md:space-x-6 flex-1 justify-end min-w-0" style={{ margin: 0 }}>
+          <div className="flex items-center space-x-3 md:space-x-6 flex-1 justify-end min-w-0 md:w-auto" style={{ margin: 0, maxWidth: '70%' }}>
             {/* Search Button for Desktop */}
             <div className="hidden md:flex items-center">
               <div className="relative">
