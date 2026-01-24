@@ -74,13 +74,13 @@ const Navbar: React.FC = () => {
       <div className=" mx-auto px-3 py-2">
         <div className="flex items-center justify-between w-full">
           {/* Logo and Navigation Links */}
-          <div className="flex items-center space-x-8 flex-1">
+          <div className="flex items-center space-x-8 flex-1 min-w-0">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+            <Link href="/" className="flex items-center space-x-2 min-w-0">
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-bold text-sm">B</span>
               </div>
-              <span className="text-xl font-bold text-black">博客</span>
+              <span className="text-xl font-bold text-black truncate">博客</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -88,7 +88,7 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Right Side: Search and Login */}
-          <div className="flex items-center space-x-6 flex-1 justify-end" style={{ margin: 0 }}>
+          <div className="flex items-center space-x-3 md:space-x-6 flex-1 justify-end min-w-0" style={{ margin: 0 }}>
             {/* Search Button for Desktop */}
             <div className="hidden md:flex items-center">
               <div className="relative">
@@ -113,7 +113,7 @@ const Navbar: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden mr-2"
+              className="md:hidden flex-shrink-0"
               onClick={() => setIsMobileSearchOpen(true)}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600">
@@ -123,8 +123,8 @@ const Navbar: React.FC = () => {
             </Button>
 
             {/* 发布博客按钮（始终显示） */}
-            <Link href={session?.user ? "/dashboard" : "/login"}>
-              <Button className="h-9 px-4 bg-black text-white hover:bg-gray-800 rounded-md">
+            <Link href={session?.user ? "/dashboard" : "/login"} className="min-w-0">
+              <Button className="h-9 px-3 md:px-4 text-sm bg-black text-white hover:bg-gray-800 rounded-md flex-shrink-0 whitespace-nowrap">
                 发布博客
               </Button>
             </Link>
@@ -133,7 +133,7 @@ const Navbar: React.FC = () => {
             {session?.user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
+                  <Button variant="ghost" size="icon" className="relative flex-shrink-0">
                     <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white font-medium">
                       {session.user.name
                         ? session.user.name.charAt(0)
@@ -157,7 +157,7 @@ const Navbar: React.FC = () => {
             )}
 
             {/* Mobile Menu Button */}
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(true)}>
+            <Button variant="ghost" size="icon" className="md:hidden flex-shrink-0" onClick={() => setIsMenuOpen(true)}>
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="4" x2="20" y1="12" y2="12" />
                 <line x1="4" x2="20" y1="6" y2="6" />
